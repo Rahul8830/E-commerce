@@ -6,8 +6,14 @@ exports.postAddProduct = (req, res) => {
     const price = req.body.price;
     const desc = req.body.description;
     const prod = new Product(null, title, imageUrl, price, desc);
-    prod.save();
-    res.redirect("/");
+    prod.save()
+    .then(() =>{
+        res.redirect("/");
+    })
+    .catch(err =>{
+        console.log(err);
+    });
+    
 };
 exports.postEditProduct = (req, res) => {
     const id = req.params.productId;

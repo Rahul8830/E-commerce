@@ -1,18 +1,5 @@
-const fs = require("fs");
-const path = require('path');
-const p = path.join(path.dirname(require.main.filename), 'data', 'products.json');
 const Cart = require('./cart');
-const getProductFromFile = (cb) => {
-
-    fs.readFile(p, (err, content) => {
-        if (err || content.length == 0) {
-            cb([]);
-        }
-        else {
-            cb(JSON.parse(content));
-        }
-    })
-}
+const db = require('../util/database');
 
 module.exports = class Product {
     constructor(id, title, imageUrl, price, description) {
@@ -23,35 +10,15 @@ module.exports = class Product {
         this.description = description;
     }
     save() {
-
-        getProductFromFile(prod => {
-            if (this.id === null) {
-                this.id = Math.random().toString();
-                prod.push(this);
-                fs.writeFile(p, JSON.stringify(prod), (err) => {
-                    console.log(err);
-                })
-            }
-            else {
-                const existingProductIndex = prod.findIndex(product => product.id === this.id);
-                prod[existingProductIndex] = this;
-                // console.log(this.id);
-                fs.writeFile(p, JSON.stringify(prod), (err) => {
-                    console.log(err);
-                })
-            }
-
-        })
-
+        return db.execute("INSERT INTO product(title,imageUrl,price,description) VALUES (?, ?, ?, ?)",
+        [this.title,this.imageUrl,this.price,this.description]
+        );
     }
     static fetchAll(cb) {
-        getProductFromFile(cb);
+        return db.execute("SELECT * FROM product");
     }
-    static findById(id, cb) {
-        getProductFromFile(product => {
-            const prod = product.find(p => p.id === id);
-            cb(prod);
-        })
+    static findById(id) {
+        return db.execute("SELECT * FROM product WHERE id = ?",[id]);
     }
     static delete(id, cb) {
         getProductFromFile(product => {
