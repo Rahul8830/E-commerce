@@ -20,10 +20,11 @@ exports.postEditProduct = (req, res) => {
     prod.save();
     res.redirect("/");
 };
-exports.deleteProduct = (req, res) => {
+exports.postDeleteProduct = (req, res) => {
     const id = req.body.productId;
-    prod.save();
-    res.redirect("/");
+    Product.delete(id,()=>{
+        res.redirect("/");
+    })
 };
 
 exports.getAddProduct = (req, res) => {
