@@ -5,32 +5,50 @@ exports.postAddProduct = (req, res) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const desc = req.body.description;
-    const prod = new Product(null, title, imageUrl, price, desc);
-    prod.save()
-    .then(() =>{
-        res.redirect("/");
+    req.user.createProduct({
+        title: title,
+        price: price,
+        imageUrl: imageUrl,
+        description: desc,
+    })
+    .then(result =>{
+        res.redirect("/admin/products");
     })
     .catch(err =>{
         console.log(err);
-    });
-    
+    })
 };
+
 exports.postEditProduct = (req, res) => {
     const id = req.params.productId;
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const desc = req.body.description;
-    console.log(id);
-    const prod = new Product(id, title, imageUrl, price, desc);
-    prod.save();
-    res.redirect("/");
-};
-exports.postDeleteProduct = (req, res) => {
-    const id = req.body.productId;
-    Product.delete(id,()=>{
+    Product.findByPk(id)
+    .then(product =>{
+        product.title = title;
+        product.imageUrl = imageUrl;
+        product.price = price;
+        product.description = desc;
+        return product.save();
+    })
+    .then(() =>{
         res.redirect("/");
     })
+    .catch(err => console.log(err));
+};
+
+exports.postDeleteProduct = (req, res) => {
+    const id = req.body.productId;
+    Product.findByPk(id)
+    .then(prod =>{
+        return prod.destroy();
+    })
+    .then(() =>{
+        res.redirect("/admin/products");
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getAddProduct = (req, res) => {
@@ -43,26 +61,30 @@ exports.getAddProduct = (req, res) => {
 };
 exports.getEditProduct = (req, res) => {
     const productId = req.params.productId;
-    Product.findById(productId, product => {
-
+    Product.findByPk(productId)
+    .then(prod =>{
         res.render('./admin/add-product',
             {
                 pageTitle: 'Edit Products',
                 path: '/admin/add-product',
-                prod: product,
+                prod: prod,
                 editable: true
             });
     })
+    .catch(err => console.log(err));
 };
 
 
 exports.getProducts = (req, res) => {
-    Product.fetchAll((product) => {
+    Product.findAll()
+    .then(products =>{
+        console.log(req.user.name);
         res.render('./admin/products',
             {
                 pageTitle: 'All Products',
-                prods: product,
+                prods: products,
                 path: '/admin/products'
             });
-    });
+    })
+    .catch(err => console.log(err));
 }
