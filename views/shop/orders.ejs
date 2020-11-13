@@ -4,6 +4,17 @@
 <body>
     <%- include('../includes/navigation.ejs') %>
     <main>
+        <% if(orders.length>0) {%>
+        <% for(order of orders) {%>
+            <h1><%= order.id%></h1>
+            <div>
+                <% for(prod of order.products) { %>
+                    <%= prod.title%> <%= prod.orderItem.quantity%>
+                <% } %>
+            </div>
+        <% } %>
+        <% } else {%>
         <h1>Nothing there!</h1>
+        <% } %>
     </main>
     <%- include('../includes/end.ejs') %>
