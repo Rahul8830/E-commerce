@@ -8,9 +8,9 @@
     <div>
         <div><%= p.title%></div>
         <div><%= p.price%></div>
-        <div><%= p.cartItem.quantity%></div>
+        <div><%= p.quantity%></div>
         <form action="/cart-delete-item" method="post">
-            <input type="hidden" name="productId" value="<%= p.id%>">
+            <input type="hidden" name="productId" value="<%= p._id%>">
             <button type="submit" class="btn">Delete</button>
         </form>
     </div>

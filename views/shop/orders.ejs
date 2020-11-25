@@ -6,10 +6,10 @@
     <main>
         <% if(orders.length>0) {%>
         <% for(order of orders) {%>
-            <h1><%= order.id%></h1>
+            <h1><%= order._id%></h1>
             <div>
-                <% for(prod of order.products) { %>
-                    <%= prod.title%> <%= prod.orderItem.quantity%>
+                <% for(prod of order.items) { %>
+                    <%= prod.title%> <%= prod.quantity%>
                 <% } %>
             </div>
         <% } %>
