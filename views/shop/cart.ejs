@@ -6,11 +6,11 @@
     <% if(products.length>0) {%>
     <% for(p of products) {%>
     <div>
-        <div><%= p.title%></div>
-        <div><%= p.price%></div>
+        <div><%= p.productId.title%></div>
+        <div><%= p.productId.price%></div>
         <div><%= p.quantity%></div>
         <form action="/cart-delete-item" method="post">
-            <input type="hidden" name="productId" value="<%= p._id%>">
+            <input type="hidden" name="productId" value="<%= p.productId._id%>">
             <button type="submit" class="btn">Delete</button>
         </form>
     </div>

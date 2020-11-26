@@ -8,8 +8,8 @@
         <% for(order of orders) {%>
             <h1><%= order._id%></h1>
             <div>
-                <% for(prod of order.items) { %>
-                    <%= prod.title%> <%= prod.quantity%>
+                <% for(prod of order.products) { %>
+                    <%= prod.product.title%> <%= prod.quantity%>
                 <% } %>
             </div>
         <% } %>

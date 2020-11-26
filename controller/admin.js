@@ -14,7 +14,13 @@ exports.postAddProduct = (req, res) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const desc = req.body.description;
-    const product = new Product(title,price,desc,imageUrl,null,req.user._id);
+    const product = new Product({
+        title:title,
+        price: price,
+        imageUrl: imageUrl,
+        description: desc,
+        userId: req.user._id
+    });
     product.save()
     .then(result =>{
         res.redirect("/admin/products");
@@ -25,7 +31,9 @@ exports.postAddProduct = (req, res) => {
 };
 
 exports.getProducts = (req, res) => {
-    Product.fetchAll()
+    Product.find()
+    // .select('title price -_id')
+    // .populate('userId','name')
     .then(products =>{
         res.render('./admin/products',
             {
@@ -58,8 +66,12 @@ exports.postEditProduct = (req, res) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const desc = req.body.description;
-    const prod = new Product(title,price,desc,imageUrl,id);
-    prod.save()
+    Product.updateOne({_id: id}, {
+        title:title,
+        price: price,
+        imageUrl: imageUrl,
+        description: desc
+    })
     .then((result) =>{
         res.redirect("/");
     })
@@ -68,7 +80,7 @@ exports.postEditProduct = (req, res) => {
 
 exports.postDeleteProduct = (req, res) => {
     const id = req.body.productId;
-    Product.deleteById(id)
+    Product.findByIdAndRemove(id)
     .then(() =>{
         res.redirect("/admin/products");
     })
