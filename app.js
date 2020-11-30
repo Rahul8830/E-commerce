@@ -25,18 +25,26 @@ const store = new mongodbStore({
 });
 
 app.use(
-    session({secret: "Login Session", resave: false, saveUninitialized: false, store:store})
+    session({ secret: "Login Session", resave: false, saveUninitialized: false, store: store })
 );
 
-app.use((req,res,next) =>{
-    User.findById('5fbf57d71640da18845b9bef')
-    .then(user =>{
-        req.user = user;
-        next();
-    })
-    .catch(err =>{
-        console.log(err);
-    })
+app.use((req, res, next) => {
+    if (req.session.isLoggedIn == undefined) {
+        req.session.isLoggedIn = false;
+    }
+    if (req.session.isLoggedIn) {
+        User.findById(req.session.user._id)
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+    else{
+        return next();
+    }
 })
 app.use("/admin", adminRoute);
 app.use(shopRoute);
@@ -44,23 +52,23 @@ app.use(authRoute);
 app.use(errorController.notFound);
 
 mongoose.connect(MONGODB_URI)
-.then(result =>{
-    User.findOne().then(user =>{
-        if(!user){
-            const u = new User({
-                name: "Rahul",
-                email: "rahul@test.com",
-                cart: {
-                    items: []
-                }
-            });
-            u.save();
-        }
-    });
-    console.log("Success");
-    app.listen(3000);
-})
-.catch(err => console.log(err));
+    .then(result => {
+        User.findOne().then(user => {
+            if (!user) {
+                const u = new User({
+                    name: "Rahul",
+                    email: "rahul@test.com",
+                    cart: {
+                        items: []
+                    }
+                });
+                u.save();
+            }
+        });
+        console.log("Success");
+        app.listen(3000);
+    })
+    .catch(err => console.log(err));
 
 // mongoConnect(() =>{
 //     console.log("Success");

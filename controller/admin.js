@@ -1,11 +1,15 @@
 const Product = require('../model/product');
 
 exports.getAddProduct = (req, res) => {
+    if(req.session.isLoggedIn==undefined){
+        req.session.isLoggedIn = false;
+    }
     res.render('./admin/add-product',
         {
             pageTitle: 'Add Products',
             path: '/admin/add-product',
-            editable: false
+            editable: false,
+            isAuthenticated: req.session.isLoggedIn
         });
 };
 
@@ -31,6 +35,9 @@ exports.postAddProduct = (req, res) => {
 };
 
 exports.getProducts = (req, res) => {
+    if(req.session.isLoggedIn==undefined){
+        req.session.isLoggedIn = false;
+    }
     Product.find()
     // .select('title price -_id')
     // .populate('userId','name')
@@ -39,13 +46,17 @@ exports.getProducts = (req, res) => {
             {
                 pageTitle: 'All Products',
                 prods: products,
-                path: '/admin/products'
+                path: '/admin/products',
+                isAuthenticated: req.session.isLoggedIn
             });
     })
     .catch(err => console.log(err));
 }
 
 exports.getEditProduct = (req, res) => {
+    if(req.session.isLoggedIn==undefined){
+        req.session.isLoggedIn = false;
+    }
     const productId = req.params.productId;
     Product.findById(productId)
     .then(prod =>{
@@ -54,7 +65,8 @@ exports.getEditProduct = (req, res) => {
                 pageTitle: 'Edit Products',
                 path: '/admin/add-product',
                 prod: prod,
-                editable: true
+                editable: true,
+                isAuthenticated: req.session.isLoggedIn
             });
     })
     .catch(err => console.log(err));
