@@ -3,13 +3,15 @@ const Product = require('../model/product');
 const Order = require("../model/order");
 
 exports.getIndex = (req, res) => {
+    console.log(req.get('Cookie'));
     Product.find()
         .then(products => {
             res.render('./shop/index',
                 {
                     pageTitle: 'Shop',
                     prods: products,
-                    path: '/'
+                    path: '/',
+                    // isAuthenticated: 
                 });
         })
         .catch(err => console.log(err));
