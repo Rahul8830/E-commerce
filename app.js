@@ -5,6 +5,7 @@ const app = express();
 const mongoose = require("mongoose");
 const session = require("express-session");
 const mongodbStore = require('connect-mongodb-session')(session);
+const csrf = require("csurf");
 
 const adminRoute = require("./routes/admin");
 const shopRoute = require("./routes/shop");
@@ -23,16 +24,19 @@ const store = new mongodbStore({
     uri: MONGODB_URI,
     collection: "sessions"
 });
+const csrfProtection = csrf();
 
 app.use(
     session({ secret: "Login Session", resave: false, saveUninitialized: false, store: store })
 );
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
-    if (req.session.isLoggedIn == undefined) {
-        req.session.isLoggedIn = false;
-    }
-    if (req.session.isLoggedIn) {
+    console.log(req.session.isLoggedIn);
+    if (!req.session.user) {
+        return next();
+      }
+    // console.log(req.session.isLoggedIn);
         User.findById(req.session.user._id)
         .then(user => {
             req.user = user;
@@ -41,11 +45,14 @@ app.use((req, res, next) => {
         .catch(err => {
             console.log(err);
         })
-    }
-    else{
-        return next();
-    }
+});
+
+app.use((req, res, next) =>{
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
 })
+
 app.use("/admin", adminRoute);
 app.use(shopRoute);
 app.use(authRoute);
@@ -53,18 +60,6 @@ app.use(errorController.notFound);
 
 mongoose.connect(MONGODB_URI)
     .then(result => {
-        User.findOne().then(user => {
-            if (!user) {
-                const u = new User({
-                    name: "Rahul",
-                    email: "rahul@test.com",
-                    cart: {
-                        items: []
-                    }
-                });
-                u.save();
-            }
-        });
         console.log("Success");
         app.listen(3000);
     })

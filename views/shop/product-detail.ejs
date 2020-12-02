@@ -11,6 +11,7 @@
         <p><%= prod.description%></p>
         <% if(isAuthenticated) {%>
         <form action="/add-to-cart/<%= prod.id%>" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken%>">
             <button class="btn">Add to Cart</button>
         </form>
         <% } %>

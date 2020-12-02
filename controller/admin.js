@@ -1,9 +1,9 @@
 const Product = require('../model/product');
 
 exports.getAddProduct = (req, res) => {
-    if(req.session.isLoggedIn==undefined){
-        req.session.isLoggedIn = false;
-    }
+    // if(req.session.isLoggedIn==undefined){
+    //     req.session.isLoggedIn = false;
+    // }
     res.render('./admin/add-product',
         {
             pageTitle: 'Add Products',
@@ -35,9 +35,9 @@ exports.postAddProduct = (req, res) => {
 };
 
 exports.getProducts = (req, res) => {
-    if(req.session.isLoggedIn==undefined){
-        req.session.isLoggedIn = false;
-    }
+    // if(req.session.isLoggedIn==undefined){
+    //     req.session.isLoggedIn = false;
+    // }
     Product.find()
     // .select('title price -_id')
     // .populate('userId','name')
@@ -54,9 +54,9 @@ exports.getProducts = (req, res) => {
 }
 
 exports.getEditProduct = (req, res) => {
-    if(req.session.isLoggedIn==undefined){
-        req.session.isLoggedIn = false;
-    }
+    // if(req.session.isLoggedIn==undefined){
+    //     req.session.isLoggedIn = false;
+    // }
     const productId = req.params.productId;
     Product.findById(productId)
     .then(prod =>{

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const userSchema = new Schema({
-    name: {
+    email: {
         type: String,
         required: true
     },
-    email: {
+    password: {
         type: String,
         required: true
     },
@@ -47,7 +47,6 @@ userSchema.methods.addToCart = function (product) {
 
 userSchema.methods.removeFromCart = function (prodId) {
     let updatedCartItems = this.cart.items.filter(i => {
-        console.log(i.productId.toString()+" "+prodId.toString());
         return prodId.toString() !== i.productId.toString();
     });
     this.cart.items = updatedCartItems;
