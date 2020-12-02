@@ -101,7 +101,7 @@ exports.postOrder = (req, res) => {
                     return { product: { ...i.productId._doc }, quantity: i.quantity };
                 });
                 let u = {
-                    name: req.user.name,
+                    email: req.user.email,
                     userId: req.user._id
                 }
                 let order = new Order({ products: products, user: u });

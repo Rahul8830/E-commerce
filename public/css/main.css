@@ -194,7 +194,20 @@ form {
   background-color: #00695c;
   color: white;
 }
-
+.user-message{
+  margin: auto;
+  width: 90%;
+  padding: 1rem;
+  text-align: center;
+  background-color: rgb(135, 135, 216);
+  border: 1px solid rgb(70, 70, 216);
+  border-radius: 4px;
+}
+.user-message--error{
+  background-color: rgb(226, 136, 136);
+  color: red;
+  border: 1px solid rgb(228, 40, 40);
+}
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
