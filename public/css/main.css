@@ -204,7 +204,7 @@ form {
   border-radius: 4px;
 }
 .user-message--error{
-  background-color: rgb(226, 136, 136);
+  background-color: rgb(230, 163, 163);
   color: red;
   border: 1px solid rgb(228, 40, 40);
 }
