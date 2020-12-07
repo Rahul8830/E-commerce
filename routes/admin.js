@@ -14,8 +14,6 @@ routes.post("/add-product",
             .isString()
             .isLength({ min: 3 })
             .trim(),
-        body("imageUrl")
-            .isURL(),
         body("price")
             .isFloat(),
         body("description")
@@ -34,8 +32,6 @@ routes.post("/edit-product/:productId",
             .isString()
             .isLength({ min: 3 })
             .trim(),
-        body("imageUrl")
-            .isURL(),
         body("price")
             .isFloat(),
         body("description")

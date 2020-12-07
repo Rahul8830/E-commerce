@@ -10,16 +10,20 @@
         <% if(error.length > 0) {%>
             <div class="user-message user-message--error"><%= error%></div>
         <% } %>
-        <form class="product-form" action="<%if(!editable) {%>/admin/add-product<%} else{%>/admin/edit-product/<%=prod._id%><%}%>" method="POST" novalidate>
+        <form class="product-form" action="<%if(!editable) {%>/admin/add-product<%} else{%>/admin/edit-product/<%=prod._id%><%}%>" method="POST" enctype="multipart/form-data" novalidate>
             <div class="form-control">
                 <label for="title">Title</label>
                 <input class="<%= validationError.find(e => e.param==='title') ? 'invalid' : ''%>"
                 type="text" name="title" id="title" value="<%if(editable || hasError) {%><%= prod.title%><%}%>">
             </div>
-            <div class="form-control">
+            <!--<div class="form-control">
                 <label for="imageUrl">Image URL</label>
                 <input class="<%= validationError.find(e => e.param==='imageUrl') ? 'invalid' : ''%>"
                 type="text" name="imageUrl" id="imageUrl" value="<%if(editable || hasError) {%><%= prod.imageUrl%><%}%>">
+            </div>-->
+            <div class="form-control">
+                <label for="image">Image</label>
+                <input type="file" name="image" id="image">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>

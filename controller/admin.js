@@ -19,9 +19,27 @@ exports.getAddProduct = (req, res) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const price = req.body.price;
     const desc = req.body.description;
+    console.log(image);
+    if (!image) {
+        return res.status(422).render('./admin/add-product',
+            {
+                pageTitle: 'Add Products',
+                path: '/admin/add-product',
+                editable: false,
+                hasError: true,
+                isAuthenticated: req.session.isLoggedIn,
+                prod: {
+                    title: title,
+                    price: price,
+                    description: desc
+                },
+                error: "Attached file should be of type .png, .jpg or .jpeg",
+                validationError: []
+            });
+    }
     let errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).render('./admin/add-product',
@@ -33,7 +51,6 @@ exports.postAddProduct = (req, res, next) => {
                 isAuthenticated: req.session.isLoggedIn,
                 prod: {
                     title: title,
-                    imageUrl: imageUrl,
                     price: price,
                     description: desc
                 },
@@ -41,6 +58,7 @@ exports.postAddProduct = (req, res, next) => {
                 validationError: errors.array()
             });
     }
+    const imageUrl = image.path;
     const product = new Product({
         title: title,
         price: price,
@@ -59,7 +77,7 @@ exports.postAddProduct = (req, res, next) => {
         })
 };
 
-exports.getProducts = (req, res) => {
+exports.getProducts = (req, res, next) => {
     // if(req.session.isLoggedIn==undefined){
     //     req.session.isLoggedIn = false;
     // }
@@ -75,10 +93,14 @@ exports.getProducts = (req, res) => {
                     isAuthenticated: req.session.isLoggedIn
                 });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        })
 }
 
-exports.getEditProduct = (req, res) => {
+exports.getEditProduct = (req, res, next) => {
     // if(req.session.isLoggedIn==undefined){
     //     req.session.isLoggedIn = false;
     // }
@@ -101,13 +123,17 @@ exports.getEditProduct = (req, res) => {
                     validationError: []
                 });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        })
 };
 
 exports.postEditProduct = (req, res, next) => {
     const id = req.params.productId;
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const price = req.body.price;
     const desc = req.body.description;
     let errors = validationResult(req);
@@ -121,7 +147,6 @@ exports.postEditProduct = (req, res, next) => {
                 isAuthenticated: req.session.isLoggedIn,
                 prod: {
                     title: title,
-                    imageUrl: imageUrl,
                     price: price,
                     description: desc,
                     _id: id
@@ -130,14 +155,21 @@ exports.postEditProduct = (req, res, next) => {
                 validationError: errors.array()
             });
     }
-    Product.updateOne({ _id: id, userId: req.user._id }, {
-        title: title,
-        price: price,
-        imageUrl: imageUrl,
-        description: desc
-    })
-        .then((result) => {
-            res.redirect("/");
+    Product.findById(id)
+        .then(product => {
+            if (product.userId.toString() !== req.user._id.toString()) {
+                return res.redirect("/");
+            }
+            product.title = title;
+            product.price = price;
+            product.description = desc;
+            if (image) {
+                product.imageUrl = image.path;
+            }
+            return product.save()
+                .then(result => {
+                    return res.redirect("/admin/products");
+                })
         })
         .catch(err => {
             const error = new Error(err);
