@@ -1,5 +1,5 @@
 const Product = require('../model/product');
-const { validationResult } = require("express-validator/check");
+const { validationResult } = require("express-validator");
 
 exports.getAddProduct = (req, res) => {
     // if(req.session.isLoggedIn==undefined){
@@ -17,7 +17,7 @@ exports.getAddProduct = (req, res) => {
         });
 };
 
-exports.postAddProduct = (req, res) => {
+exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
@@ -53,7 +53,9 @@ exports.postAddProduct = (req, res) => {
             res.redirect("/admin/products");
         })
         .catch(err => {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
         })
 };
 
@@ -102,7 +104,7 @@ exports.getEditProduct = (req, res) => {
         .catch(err => console.log(err));
 };
 
-exports.postEditProduct = (req, res) => {
+exports.postEditProduct = (req, res, next) => {
     const id = req.params.productId;
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
@@ -137,16 +139,24 @@ exports.postEditProduct = (req, res) => {
         .then((result) => {
             res.redirect("/");
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        });
 };
 
-exports.postDeleteProduct = (req, res) => {
+exports.postDeleteProduct = (req, res, next) => {
     const id = req.body.productId;
     Product.deleteOne({ _id: id, userId: req.user._id })
         .then(() => {
             res.redirect("/admin/products");
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        });
 };
 
 

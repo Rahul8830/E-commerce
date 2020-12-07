@@ -29,7 +29,7 @@ exports.getLogin = (req, res) => {
     })
 };
 
-exports.postLogin = (req, res) => {
+exports.postLogin = (req, res, next) => {
     const email = req.body.email;
     const pass = req.body.password;
     let errors = validationResult(req);
@@ -61,13 +61,23 @@ exports.postLogin = (req, res) => {
                             return res.redirect("/");
                         });
                     }
-                    req.flash("errMsg", "Invalid email or password.");
-                    res.redirect("/login");
+                    return res.status(422).render("./auth/login", {
+                        path: "/login",
+                        pageTitle: "Login",
+                        error: "Invalid Email or password",
+                        fieldData: {
+                            email: email,
+                            password: ""
+                        },
+                        validationError: []
+                    });
                 })
                 .catch(err => console.log(err))
         })
         .catch(err => {
-            console.log(err);
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
         })
 };
 
@@ -131,6 +141,11 @@ exports.postSignup = (req, res, next) => {
             })
                 .catch(err => console.log(err));
         })
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        })
 };
 exports.getReset = (req, res, next) => {
     res.render("./auth/reset", {
@@ -171,6 +186,11 @@ exports.sendReset = (req, res, next) => {
                 })
                     .catch(err => console.log(err));
             })
+            .catch(err => {
+                const error = new Error(err);
+                error.httpStatusCode = 500;
+                return next(err);
+            })
     })
 }
 
@@ -186,7 +206,11 @@ exports.getNewPassword = (req, res, next) => {
                 passwordToken: token
             })
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        })
 };
 
 exports.changePassword = (req, res, next) => {
@@ -208,5 +232,9 @@ exports.changePassword = (req, res, next) => {
         .then(result => {
             res.redirect("/login");
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(err);
+        })
 }
