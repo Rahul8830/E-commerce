@@ -2,6 +2,10 @@ const Product = require('../model/product');
 // const Cart = require('../model/cart');
 const Order = require("../model/order");
 
+const fs = require("fs");
+const path = require("path");
+const PDFDocument = require("pdfkit");
+
 exports.getIndex = (req, res, next) => {
     // if(req.session.isLoggedIn==undefined){
     //     req.session.isLoggedIn = false;
@@ -166,3 +170,74 @@ exports.getOrders = (req, res, next) => {
         })
 }
 
+exports.getInvoice = (req, res, next) => {
+    const orderId = req.params.orderId;
+    Order.findById(orderId)
+        .then(order => {
+            if (!order) {
+                console.log("No order found.");
+                return next(new Error("No order found."));
+            }
+            if (order.user.userId.toString() !== req.user._id.toString()) {
+                console.log("Unauthorized");
+                return next(new Error("Unauthorized"));
+            }
+            const invoiceName = "invoice-" + orderId + ".pdf";
+            const invoicePath = path.join("data", "invoices", invoiceName);
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", 'attachment; filename="' + invoiceName + '"');
+            const accessPromise = (invoicePath) => {
+                return new Promise((resolve) => {
+                    fs.access(invoicePath, (err) => {
+                        if (err) {
+                            resolve(0);
+                        }
+                        else {
+                            resolve(1);
+                        }
+                    })
+                });
+            }
+            accessPromise(invoicePath)
+                .then(result => {
+                    if (result == 1) {
+                        let file = fs.createReadStream(invoicePath);
+                        file.pipe(res);
+                    }
+                    else {
+                        const pdfDoc = new PDFDocument();
+                        pdfDoc.pipe(fs.createWriteStream(invoicePath));
+                        pdfDoc.pipe(res);
+                        pdfDoc.fontSize(26).text("Invoice", {underline: true});
+                        pdfDoc.text("------------------------------");
+                        let total = 0;
+                        order.products.forEach(prod =>{
+                            total+= prod.quantity*prod.product.price;
+                            pdfDoc.fontSize(18).text(`${prod.product.title}-${prod.quantity}x${prod.product.price}`);
+                        });
+                        pdfDoc.text("------------------------------");
+                        pdfDoc.fontSize(20).text(`Total = ${total}`);
+                        pdfDoc.end();
+                    }
+                })
+
+            // fs.readFile(invoicePath, (err, data) => {
+            //     if (err) {
+            //         console.log(err);
+            //         return next(err);
+            //     }
+            //     res.setHeader("Content-Type", "application/pdf");
+            //     res.setHeader("Content-Disposition", 'attachment; filename="' + invoiceName + '"');
+            //     res.send(data);
+            // })
+
+            // const file = fs.createReadStream(invoicePath);
+            // res.setHeader("Content-Type", "application/pdf");
+            // res.setHeader("Content-Disposition", 'attachment; filename="' + invoiceName + '"');
+            // file.pipe(res);
+        })
+        .catch(err => {
+            console.log(err);
+            return next(err);
+        })
+}

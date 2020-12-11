@@ -1,5 +1,6 @@
 const Product = require('../model/product');
 const { validationResult } = require("express-validator");
+const fileHelper = require("../util/file");
 
 exports.getAddProduct = (req, res) => {
     // if(req.session.isLoggedIn==undefined){
@@ -164,6 +165,7 @@ exports.postEditProduct = (req, res, next) => {
             product.price = price;
             product.description = desc;
             if (image) {
+                fileHelper.deleteFile(product.imageUrl);
                 product.imageUrl = image.path;
             }
             return product.save()
@@ -180,7 +182,11 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const id = req.body.productId;
-    Product.deleteOne({ _id: id, userId: req.user._id })
+    Product.findById(id)
+        .then(product => {
+            fileHelper.deleteFile(product.imageUrl);
+            return Product.deleteOne({ _id: id, userId: req.user._id });
+        })
         .then(() => {
             res.redirect("/admin/products");
         })

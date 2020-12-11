@@ -12,6 +12,7 @@
                     <%= prod.product.title%> <%= prod.quantity%>
                 <% } %>
             </div>
+            <a href="/orders/<%= order._id%>">Invoice</a>
         <% } %>
         <% } else {%>
         <h1>Nothing there!</h1>
