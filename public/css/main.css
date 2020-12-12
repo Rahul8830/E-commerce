@@ -203,11 +203,31 @@ form {
   border: 1px solid rgb(70, 70, 216);
   border-radius: 4px;
 }
+
 .user-message--error{
   background-color: rgb(230, 163, 163);
   color: red;
   border: 1px solid rgb(228, 40, 40);
 }
+
+.pagination{
+  text-align: center;
+  margin-top: 1rem;
+}
+.pagination a{
+  text-decoration: none;
+  font-size: 23px;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  color: #005c51;
+}
+
+.pagination a.active{
+  border-radius: 100%;
+  background-color: #00695c;
+  color: white;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;

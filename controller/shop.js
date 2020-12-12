@@ -6,17 +6,33 @@ const fs = require("fs");
 const path = require("path");
 const PDFDocument = require("pdfkit");
 
+const PRODUCTS_PER_PAGE = 2;
+
 exports.getIndex = (req, res, next) => {
     // if(req.session.isLoggedIn==undefined){
     //     req.session.isLoggedIn = false;
     // }
-    Product.find()
+    let totalProducts;
+    const page = +req.query.page || 1;
+    Product.countDocuments()
+        .then(count => {
+            totalProducts = count;
+            return Product.find()
+                .skip(PRODUCTS_PER_PAGE * (page - 1))
+                .limit(PRODUCTS_PER_PAGE)
+        })
         .then(products => {
             res.render('./shop/index',
                 {
                     pageTitle: 'Shop',
                     prods: products,
-                    path: '/'
+                    path: '/',
+                    currentPage: page,
+                    lastPage: Math.ceil(totalProducts / PRODUCTS_PER_PAGE),
+                    nextPage: page + 1,
+                    previousPage: page - 1,
+                    hasNextPage: page * PRODUCTS_PER_PAGE < totalProducts,
+                    hasPreviousPage: page > 1
                 });
         })
         .catch(err => {
@@ -208,11 +224,11 @@ exports.getInvoice = (req, res, next) => {
                         const pdfDoc = new PDFDocument();
                         pdfDoc.pipe(fs.createWriteStream(invoicePath));
                         pdfDoc.pipe(res);
-                        pdfDoc.fontSize(26).text("Invoice", {underline: true});
+                        pdfDoc.fontSize(26).text("Invoice", { underline: true });
                         pdfDoc.text("------------------------------");
                         let total = 0;
-                        order.products.forEach(prod =>{
-                            total+= prod.quantity*prod.product.price;
+                        order.products.forEach(prod => {
+                            total += prod.quantity * prod.product.price;
                             pdfDoc.fontSize(18).text(`${prod.product.title}-${prod.quantity}x${prod.product.price}`);
                         });
                         pdfDoc.text("------------------------------");
